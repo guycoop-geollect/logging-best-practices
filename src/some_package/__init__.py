@@ -1,3 +1,3 @@
-from helpers.logging_ import setup_logging as __setup_logging
+from helpers.logging_ import setup_logging as _setup_logging
 
-_logger = __setup_logging(__name__)
+_logger = _setup_logging(__name__)
