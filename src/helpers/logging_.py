@@ -3,7 +3,7 @@ import os
 import sys
 
 
-def setup_logging(name: str = None) -> logging.Logger:
+def get_logger(name: str = None) -> logging.Logger:
     """Sets up and returns a logger.
 
     :param name: Name to use for logger.
@@ -21,10 +21,21 @@ def setup_logging(name: str = None) -> logging.Logger:
     ch.setFormatter(fmt=console_formatter)
     logger.addHandler(hdlr=ch)
 
-    # set level
-    loglevel = os.getenv(key=f"LOGLEVEL_{name.upper()}")  # name specific
+    # - set level - #
+    # set level on a module/package wise basis
+    # starting with most specific name i.e. PACKAGE.PACKAGE.MODULE, then PACKAGE.PACKAGE, then PACKAGE, etc.
+    loglevel = None
+    split_name = name.split(".")
+    for i in range(len(split_name), 0, -1):
+        env_name = ".".join([n.upper() for n in split_name[0:i]])
+        loglevel = os.getenv(key=f"LOGLEVEL_{env_name}")
+        if loglevel is not None:
+            break
+
+    # otherwise use the global log level
     if loglevel is None:
-        loglevel = os.getenv(key="LOGLEVEL", default="INFO")  # otherwise global
+        loglevel = os.getenv(key="LOGLEVEL", default="INFO")
+
     loglevel = getattr(logging, loglevel.upper())
     logger.setLevel(level=loglevel)
 
